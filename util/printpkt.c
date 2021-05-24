@@ -474,7 +474,7 @@ int printpkt_print(struct ulogd_key *res, char *buf)
 		buf_cur += sprintf(buf_cur, "GID=%u ",
 				   ikey_get_u32(&res[KEY_OOB_GID]));
 	if (pp_is_valid(res, KEY_OOB_MARK))
-		buf_cur += sprintf(buf_cur, "MARK=%x ",
+		buf_cur += sprintf(buf_cur, "MARK=0x%x ",
 				   ikey_get_u32(&res[KEY_OOB_MARK]));
 
 	strcat(buf_cur, "\n");
