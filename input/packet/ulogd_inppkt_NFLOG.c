@@ -595,7 +595,7 @@ static int start(struct ulogd_pluginstance *upi)
 	flags = 0;
 	if (seq_ce(upi->config_kset).u.value != 0)
 		flags = NFULNL_CFG_F_SEQ;
-	if (seq_ce(upi->config_kset).u.value != 0)
+	if (seq_global_ce(upi->config_kset).u.value != 0)
 		flags |= NFULNL_CFG_F_SEQ_GLOBAL;
 	if (flags) {
 		if (nflog_set_flags(ui->nful_gh, flags) < 0)
