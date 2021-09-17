@@ -314,7 +314,7 @@ static struct ulogd_plugin xml_plugin = {
 	.input = {
 		.keys = xml_inp,
 		.num_keys = ARRAY_SIZE(xml_inp),
-		.type = ULOGD_DTYPE_FLOW | ULOGD_DTYPE_SUM,
+		.type = ULOGD_DTYPE_FLOW | ULOGD_DTYPE_SUM | ULOGD_DTYPE_RAW,
 	},
 	.output = {
 		.type = ULOGD_DTYPE_SINK,
