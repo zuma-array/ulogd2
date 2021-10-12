@@ -109,7 +109,7 @@ xml_output_flow(struct ulogd_key *inp, char *buf, ssize_t size)
 	if (tmp < 0 || tmp >= size)
 		return -1;
 
-	return 0;
+	return tmp;
 #else
 	return -1;
 #endif
@@ -126,7 +126,7 @@ xml_output_packet(struct ulogd_key *inp, char *buf, ssize_t size)
 	if (tmp < 0 || tmp >= size)
 		return -1;
 
-	return 0;
+	return tmp;
 #else
 	return -1;
 #endif
@@ -143,7 +143,7 @@ xml_output_sum(struct ulogd_key *inp, char *buf, ssize_t size)
 						 NFACCT_SNPRINTF_F_TIME);
 	if (tmp < 0 || tmp >= size)
 		return -1;
-	return 0;
+	return tmp;
 #else
 	return -1;
 #endif
@@ -155,14 +155,25 @@ static int xml_output(struct ulogd_pluginstance *upi)
 	struct ulogd_key *inp = upi->input.keys;
 	struct xml_priv *opi = (struct xml_priv *) &upi->private;
 	static char buf[4096];
-	int ret = -1;
+	int ret = -1, tmp = 0;
 
-	if (pp_is_valid(inp, KEY_CT))
-		ret = xml_output_flow(inp, buf, sizeof(buf));
-	else if (pp_is_valid(inp, KEY_PCKT))
-		ret = xml_output_packet(inp, buf, sizeof(buf));
-	else if (pp_is_valid(inp, KEY_SUM))
-		ret = xml_output_sum(inp, buf, sizeof(buf));
+	if (pp_is_valid(inp, KEY_PCKT)) {
+		ret = xml_output_packet(inp, buf + tmp, sizeof(buf) - tmp);
+		if (ret < 0)
+			return ULOGD_IRET_ERR;
+		tmp += ret;
+	}
+	if (pp_is_valid(inp, KEY_CT)) {
+		ret = xml_output_flow(inp, buf + tmp, sizeof(buf) - tmp);
+		if (ret < 0)
+			return ULOGD_IRET_ERR;
+		tmp += ret;
+	}
+	if (pp_is_valid(inp, KEY_SUM)) {
+		ret = xml_output_sum(inp, buf + tmp, sizeof(buf) - tmp);
+		if (ret < 0)
+			return ULOGD_IRET_ERR;
+	}
 
 	if (ret < 0)
 		return ULOGD_IRET_ERR;
