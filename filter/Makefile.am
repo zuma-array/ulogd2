@@ -1,4 +1,4 @@
-SUBDIRS = raw2packet packet2flow
+SUBDIRS = raw2packet
 
 AM_CPPFLAGS = -I$(top_srcdir)/include ${LIBNFNETLINK_CFLAGS}
 AM_CFLAGS = ${regular_CFLAGS}
