@@ -1,10 +1,35 @@
+if HAVE_PCAP
+  OPT_SUBDIR_PCAP = pcap
+endif
+
+if HAVE_MYSQL
+  OPT_SUBDIR_MYSQL = mysql
+endif
+
+if HAVE_PGSQL
+  OPT_SUBDIR_PGSQL = pgsql
+endif
+
+if HAVE_SQLITE3
+  OPT_SUBDIR_SQLITE3 = sqlite3
+endif
+
+if HAVE_DBI
+  OPT_SUBDIR_DBI = dbi
+endif
+
+SUBDIRS = $(OPT_SUBDIR_PCAP) \
+	  $(OPT_SUBDIR_MYSQL) \
+	  $(OPT_SUBDIR_PGSQL) \
+	  $(OPT_SUBDIR_SQLITE3) \
+	  $(OPT_SUBDIR_DBI) \
+	  ipfix
+
 include $(top_srcdir)/Make_global.am
 
 AM_CPPFLAGS += ${LIBNETFILTER_ACCT_CFLAGS} \
 	       ${LIBNETFILTER_CONNTRACK_CFLAGS} \
 	       ${LIBNETFILTER_LOG_CFLAGS}
-
-SUBDIRS= pcap mysql pgsql sqlite3 dbi ipfix
 
 pkglib_LTLIBRARIES = ulogd_output_LOGEMU.la ulogd_output_SYSLOG.la \
 			 ulogd_output_OPRINT.la ulogd_output_GPRINT.la \

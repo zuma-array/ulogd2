@@ -1,11 +1,10 @@
+SUBDIRS = include libipulog src input filter output
 
-ACLOCAL_AMFLAGS  = -I m4
+ACLOCAL_AMFLAGS = -I m4
 
 dist_man_MANS = ulogd.8
 
 EXTRA_DIST = ulogd.conf.in doc
-
-SUBDIRS = include libipulog src input filter output
 
 noinst_DATA = ulogd.conf
 
@@ -17,4 +16,3 @@ ulogd.conf: Makefile $(srcdir)/ulogd.conf.in
 
 dist-hook:
 	rm -f ulogd.conf
-
