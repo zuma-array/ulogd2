@@ -1,9 +1,9 @@
 
 ACLOCAL_AMFLAGS  = -I m4
 
-man_MANS = ulogd.8
+dist_man_MANS = ulogd.8
 
-EXTRA_DIST = $(man_MANS) ulogd.conf.in doc
+EXTRA_DIST = ulogd.conf.in doc
 
 SUBDIRS = include libipulog src input filter output
 
