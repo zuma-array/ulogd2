@@ -180,7 +180,7 @@ AC_CONFIG_FILES(include/Makefile include/ulogd/Makefile include/libipulog/Makefi
 	  filter/Makefile filter/raw2packet/Makefile filter/packet2flow/Makefile \
 	  output/Makefile output/pcap/Makefile output/mysql/Makefile output/pgsql/Makefile output/sqlite3/Makefile \
 	  output/dbi/Makefile output/ipfix/Makefile \
-	  src/Makefile Makefile Rules.make)
+	  src/Makefile Makefile)
 AC_OUTPUT
 
 define([EXPAND_VARIABLE],
