@@ -1,5 +1,7 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include $(LIBNETFILTER_ACCT_CFLAGS) $(LIBMNL_CFLAGS)
-AM_CFLAGS = ${regular_CFLAGS}
+include $(top_srcdir)/Make_global.am
+
+AM_CPPFLAGS += $(LIBNETFILTER_ACCT_CFLAGS) $(LIBMNL_CFLAGS)
+
 if BUILD_NFACCT
 pkglib_LTLIBRARIES = ulogd_inpflow_NFACCT.la
 ulogd_inpflow_NFACCT_la_SOURCES = ulogd_inpflow_NFACCT.c

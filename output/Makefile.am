@@ -1,6 +1,8 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include ${LIBNETFILTER_ACCT_CFLAGS} \
-              ${LIBNETFILTER_CONNTRACK_CFLAGS} ${LIBNETFILTER_LOG_CFLAGS}
-AM_CFLAGS = ${regular_CFLAGS}
+include $(top_srcdir)/Make_global.am
+
+AM_CPPFLAGS += ${LIBNETFILTER_ACCT_CFLAGS} \
+	       ${LIBNETFILTER_CONNTRACK_CFLAGS} \
+	       ${LIBNETFILTER_LOG_CFLAGS}
 
 SUBDIRS= pcap mysql pgsql sqlite3 dbi ipfix
 

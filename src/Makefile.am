@@ -1,9 +1,8 @@
+include $(top_srcdir)/Make_global.am
 
-AM_CPPFLAGS = -I$(top_srcdir)/include \
-	      -DULOGD_CONFIGFILE='"$(sysconfdir)/ulogd.conf"' \
-	      -DULOGD_LOGFILE_DEFAULT='"$(localstatedir)/log/ulogd.log"' \
-	      -DULOGD2_LIBDIR='"$(ulogd2libdir)"'
-AM_CFLAGS = ${regular_CFLAGS}
+AM_CPPFLAGS += -DULOGD_CONFIGFILE='"$(sysconfdir)/ulogd.conf"' \
+	       -DULOGD_LOGFILE_DEFAULT='"$(localstatedir)/log/ulogd.log"' \
+	       -DULOGD2_LIBDIR='"$(ulogd2libdir)"'
 
 sbin_PROGRAMS = ulogd
 

@@ -1,6 +1,6 @@
+include $(top_srcdir)/Make_global.am
 
-AM_CPPFLAGS = -I$(top_srcdir)/include ${LIBNETFILTER_LOG_CFLAGS}
-AM_CFLAGS = ${regular_CFLAGS}
+AM_CPPFLAGS += ${LIBNETFILTER_LOG_CFLAGS}
 
 pkglib_LTLIBRARIES = ulogd_inppkt_UNIXSOCK.la
 

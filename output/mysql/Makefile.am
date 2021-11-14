@@ -1,5 +1,6 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include $(MYSQL_INC)
-AM_CFLAGS = ${regular_CFLAGS}
+include $(top_srcdir)/Make_global.am
+
+AM_CPPFLAGS += $(MYSQL_INC)
 
 if HAVE_MYSQL
 

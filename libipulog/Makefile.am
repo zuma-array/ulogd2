@@ -1,6 +1,4 @@
-
-AM_CPPFLAGS = -I$(top_srcdir)/include
-AM_CFLAGS = ${regular_CFLAGS}
+include $(top_srcdir)/Make_global.am
 
 noinst_LTLIBRARIES = libipulog.la
 

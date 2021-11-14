@@ -1,6 +1,6 @@
+include $(top_srcdir)/Make_global.am
 
-AM_CPPFLAGS = -I$(top_srcdir)/include $(DBI_INC)
-AM_CFLAGS = ${regular_CFLAGS}
+AM_CPPFLAGS += $(DBI_INC)
 
 if HAVE_DBI
 

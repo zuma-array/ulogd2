@@ -1,6 +1,6 @@
+include $(top_srcdir)/Make_global.am
 
-AM_CPPFLAGS = -I$(top_srcdir)/include ${LIBNETFILTER_CONNTRACK_CFLAGS}
-AM_CFLAGS = ${regular_CFLAGS}
+AM_CPPFLAGS += ${LIBNETFILTER_CONNTRACK_CFLAGS}
 
 if BUILD_NFCT
 pkglib_LTLIBRARIES = ulogd_inpflow_NFCT.la # ulogd_inpflow_IPFIX.la

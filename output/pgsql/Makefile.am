@@ -1,6 +1,6 @@
+include $(top_srcdir)/Make_global.am
 
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(PQINCPATH)
-AM_CFLAGS = ${regular_CFLAGS}
+AM_CPPFLAGS += -I$(PQINCPATH)
 
 if HAVE_PGSQL
 
