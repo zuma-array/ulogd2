@@ -155,18 +155,6 @@ AC_ARG_WITH([ulogd2libdir],
         [ulogd2libdir="${libdir}/ulogd"])
 AC_SUBST([ulogd2libdir])
 
-dnl AC_SUBST(DATABASE_DIR)
-dnl AC_SUBST(DATABASE_LIB)
-dnl AC_SUBST(DATABASE_LIB_DIR)
-dnl AC_SUBST(DB_DEF)
-dnl AC_SUBST(EXTRA_MYSQL_DEF)
-dnl AC_SUBST(EXTRA_PGSQL_DEF)
-
-dnl AC_SUBST(DATABASE_DRIVERS)
-
-dnl AM_CONDITIONAL(HAVE_MYSQL, test x$mysqldir != x)
-dnl AM_CONDITIONAL(HAVE_PGSQL, test x$pgsqldir != x)
-
 AC_CONFIG_FILES(include/Makefile include/ulogd/Makefile include/libipulog/Makefile \
 	  include/linux/Makefile include/linux/netfilter/Makefile \
 	  include/linux/netfilter_ipv4/Makefile libipulog/Makefile \
