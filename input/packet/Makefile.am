@@ -1,6 +1,6 @@
 include $(top_srcdir)/Make_global.am
 
-AM_CPPFLAGS += ${LIBNETFILTER_LOG_CFLAGS}
+AM_CPPFLAGS += ${LIBNETFILTER_LOG_CFLAGS} ${LIBNETFILTER_CONNTRACK_CFLAGS}
 
 pkglib_LTLIBRARIES = ulogd_inppkt_UNIXSOCK.la
 
@@ -20,5 +20,6 @@ pkglib_LTLIBRARIES += ulogd_inppkt_NFLOG.la
 
 ulogd_inppkt_NFLOG_la_SOURCES = ulogd_inppkt_NFLOG.c
 ulogd_inppkt_NFLOG_la_LDFLAGS = -avoid-version -module
-ulogd_inppkt_NFLOG_la_LIBADD  = $(LIBNETFILTER_LOG_LIBS)
+ulogd_inppkt_NFLOG_la_LIBADD  = $(LIBNETFILTER_LOG_LIBS) \
+				$(LIBNETFILTER_CONNTRACK_LIBS)
 endif

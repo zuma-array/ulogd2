@@ -12,6 +12,13 @@
 #include <ulogd/ulogd.h>
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_log/libnetfilter_log.h>
+#ifdef BUILD_NFCT
+#include <libmnl/libmnl.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#else
+struct nf_conntrack;
+#endif
+
 
 #ifndef NFLOG_GROUP_DEFAULT
 #define NFLOG_GROUP_DEFAULT	0
@@ -148,6 +155,7 @@ enum nflog_keys {
 	NFLOG_KEY_RAW_MAC_SADDR,
 	NFLOG_KEY_RAW_MAC_ADDRLEN,
 	NFLOG_KEY_RAW,
+	NFLOG_KEY_RAW_CT,
 };
 
 static struct ulogd_key output_keys[] = {
@@ -319,11 +327,52 @@ static struct ulogd_key output_keys[] = {
 		.flags = ULOGD_RETF_NONE,
 		.name = "raw",
 	},
+	[NFLOG_KEY_RAW_CT] = {
+		.type = ULOGD_RET_RAW,
+		.flags = ULOGD_RETF_NONE,
+		.name = "ct",
+	},
 };
+
+struct nf_conntrack *build_ct(struct nfgenmsg *nfmsg)
+{
+#ifdef BUILD_NFCT
+	struct nlmsghdr *nlh =
+		(struct nlmsghdr *)((void *)nfmsg - sizeof(*nlh));
+	struct nlattr *attr, *ctattr = NULL;
+	struct nf_conntrack *ct;
+
+	mnl_attr_for_each(attr, nlh, sizeof(struct nfgenmsg)) {
+		if (mnl_attr_get_type(attr) == NFULA_CT) {
+			ctattr = attr;
+			break;
+		}
+	}
+	if (!ctattr)
+		return NULL;
+
+	ct = nfct_new();
+	if (!ct) {
+		ulogd_log(ULOGD_ERROR, "failed to allocate nfct\n");
+		return NULL;
+	}
+	if (nfct_payload_parse(mnl_attr_get_payload(ctattr),
+			       mnl_attr_get_payload_len(ctattr),
+			       nfmsg->nfgen_family, ct) < 0) {
+		ulogd_log(ULOGD_ERROR, "failed to parse nfct payload\n");
+		nfct_destroy(ct);
+		return NULL;
+	}
+
+	return ct;
+#else
+	return NULL;
+#endif
+}
 
 static inline int
 interp_packet(struct ulogd_pluginstance *upi, uint8_t pf_family,
-	      struct nflog_data *ldata)
+	      struct nflog_data *ldata, struct nf_conntrack *ct)
 {
 	struct ulogd_key *ret = upi->output.keys;
 
@@ -404,6 +453,9 @@ interp_packet(struct ulogd_pluginstance *upi, uint8_t pf_family,
 
 	okey_set_ptr(&ret[NFLOG_KEY_RAW], ldata);
 
+	if (ct != NULL)
+		okey_set_ptr(&ret[NFLOG_KEY_RAW_CT], ct);
+
 	ulogd_propagate_results(upi);
 	return 0;
 }
@@ -478,16 +530,25 @@ static int msg_cb(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 {
 	struct ulogd_pluginstance *upi = data;
 	struct ulogd_pluginstance *npi = NULL;
+	void *ct = build_ct(nfmsg);
 	int ret = 0;
 
 	/* since we support the re-use of one instance in several 
 	 * different stacks, we duplicate the message to let them know */
 	llist_for_each_entry(npi, &upi->plist, plist) {
-		ret = interp_packet(npi, nfmsg->nfgen_family, nfa);
+		ret = interp_packet(npi, nfmsg->nfgen_family, nfa, ct);
 		if (ret != 0)
-			return ret;
+			goto release_ct;
 	}
-	return interp_packet(upi, nfmsg->nfgen_family, nfa);
+	ret = interp_packet(upi, nfmsg->nfgen_family, nfa, ct);
+
+release_ct:
+#ifdef BUILD_NFCT
+	if (ct != NULL)
+		nfct_destroy(ct);
+#endif
+
+	return ret;
 }
 
 static int configure(struct ulogd_pluginstance *upi,
