@@ -33,7 +33,7 @@ struct nflog_input {
 /* configuration entries */
 
 static struct config_keyset libulog_kset = {
-	.num_ces = 11,
+	.num_ces = 12,
 	.ces = {
 		{
 			.key 	 = "bufsize",
@@ -102,6 +102,12 @@ static struct config_keyset libulog_kset = {
 			.options = CONFIG_OPT_NONE,
 			.u.value = 0,
 		},
+		{
+			.key     = "attach_conntrack",
+			.type    = CONFIG_TYPE_INT,
+			.options = CONFIG_OPT_NONE,
+			.u.value = 0,
+		},
 	}
 };
 
@@ -116,6 +122,7 @@ static struct config_keyset libulog_kset = {
 #define nlsockbufmaxsize_ce(x) (x->ces[8])
 #define nlthreshold_ce(x) (x->ces[9])
 #define nltimeout_ce(x) (x->ces[10])
+#define attach_conntrack_ce(x) (x->ces[11])
 
 enum nflog_keys {
 	NFLOG_KEY_RAW_MAC = 0,
@@ -597,6 +604,8 @@ static int start(struct ulogd_pluginstance *upi)
 		flags = NFULNL_CFG_F_SEQ;
 	if (seq_global_ce(upi->config_kset).u.value != 0)
 		flags |= NFULNL_CFG_F_SEQ_GLOBAL;
+	if (attach_conntrack_ce(upi->config_kset).u.value != 0)
+		flags |= NFULNL_CFG_F_CONNTRACK;
 	if (flags) {
 		if (nflog_set_flags(ui->nful_gh, flags) < 0)
 			ulogd_log(ULOGD_ERROR, "unable to set flags 0x%x\n",
