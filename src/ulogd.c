@@ -965,7 +965,6 @@ static int create_stack(const char *option)
 		load_all_plugins();
 
 	if (!buf) {
-		ulogd_log(ULOGD_ERROR, "");
 		ret = -ENOMEM;
 		goto out_buf;
 	}
