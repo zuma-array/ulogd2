@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <inttypes.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <netinet/ether.h>
@@ -632,9 +633,9 @@ static int unixsock_instance_read_cb(int fd, unsigned int what, void *param)
 		packet_sig = ntohl(unixsock_packet->marker);
 		if (packet_sig != ULOGD_SOCKET_MARK) {
 			ulogd_log(ULOGD_ERROR,
-				"ulogd2: invalid packet marked received "
-				"(read %lx, expected %lx), closing socket.\n",
-				packet_sig, ULOGD_SOCKET_MARK);
+				  "ulogd2: invalid packet marked received "
+				  "(read %" PRIx32 ", expected %" PRIx32 "), closing socket.\n",
+				  packet_sig, ULOGD_SOCKET_MARK);
 			_disconnect_client(ui);
 			return -1;
 
@@ -663,8 +664,8 @@ static int unixsock_instance_read_cb(int fd, unsigned int what, void *param)
 			}
 
 		} else {
-			ulogd_log(ULOGD_DEBUG, "  We have %d bytes, but need %d. Requesting more\n",
-					ui->unixsock_buf_avail, needed_len + sizeof(uint32_t));
+			ulogd_log(ULOGD_DEBUG, "  We have %u bytes, but need %zu. Requesting more\n",
+				  ui->unixsock_buf_avail, needed_len + sizeof(uint32_t));
 			return 0;
 		}
 
