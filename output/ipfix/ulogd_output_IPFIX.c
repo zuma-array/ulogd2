@@ -198,7 +198,8 @@ static int send_msgs(struct ulogd_pluginstance *pi)
 	struct ipfix_priv *priv = (struct ipfix_priv *) &pi->private;
 	struct llist_head *curr, *tmp;
 	struct ipfix_msg *msg;
-	int ret = ULOGD_IRET_OK, sent;
+	int ret = ULOGD_IRET_OK;
+	ssize_t sent;
 
 	llist_for_each_prev(curr, &priv->list) {
 		msg = llist_entry(curr, struct ipfix_msg, link);
@@ -212,8 +213,8 @@ static int send_msgs(struct ulogd_pluginstance *pi)
 
 		/* TODO handle short send() for other protocols */
 		if ((size_t) sent < ipfix_msg_len(msg))
-			ulogd_log(ULOGD_ERROR, "short send: %d < %d\n",
-					sent, ipfix_msg_len(msg));
+			ulogd_log(ULOGD_ERROR, "short send: %zd < %zu\n",
+				  sent, ipfix_msg_len(msg));
 	}
 
 	llist_for_each_safe(curr, tmp, &priv->list) {
@@ -242,7 +243,7 @@ static int ipfix_ufd_cb(int fd, unsigned what, void *arg)
 			ulogd_log(ULOGD_INFO, "connection reset by peer\n");
 			ulogd_unregister_fd(&priv->ufd);
 		} else
-			ulogd_log(ULOGD_INFO, "unexpected data (%d bytes)\n", nread);
+			ulogd_log(ULOGD_INFO, "unexpected data (%zd bytes)\n", nread);
 	}
 
 	return 0;
