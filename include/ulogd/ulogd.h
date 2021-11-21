@@ -299,8 +299,9 @@ void ulogd_register_plugin(struct ulogd_plugin *me);
 /* allocate a new ulogd_key */
 struct ulogd_key *alloc_ret(const uint16_t type, const char*);
 
-/* write a message to the daemons' logfile */
-void __ulogd_log(int level, char *file, int line, const char *message, ...);
+/* write a message to the daemon's logfile */
+void __ulogd_log(int level, char *file, int line, const char *message, ...)
+	__attribute__((format(printf, 4, 5)));
 /* macro for logging including filename and line number */
 #define ulogd_log(level, format, args...) \
 	__ulogd_log(level, __FILE__, __LINE__, format, ## args)
