@@ -302,11 +302,12 @@ static int json_interp(struct ulogd_pluginstance *upi)
 			now = time(NULL);
 		t = localtime_r(&now, &result);
 		if (unlikely(*opi->cached_tz = '\0' || t->tm_gmtoff != opi->cached_gmtoff)) {
+			int gmtoff = t->tm_gmtoff % 86400;
+			int gmtoff_hours = gmtoff / 3600;
+			int gmtoff_minutes = abs(gmtoff) / 60 % 60;
+
 			snprintf(opi->cached_tz, sizeof(opi->cached_tz),
-				 "%c%02d%02d",
-				 t->tm_gmtoff > 0 ? '+' : '-',
-				 abs(t->tm_gmtoff) / 60 / 60,
-				 abs(t->tm_gmtoff) / 60 % 60);
+				 "%+03d%02d", gmtoff_hours, gmtoff_minutes);
 		}
 
 		if (pp_is_valid(inp, opi->usec_idx)) {
