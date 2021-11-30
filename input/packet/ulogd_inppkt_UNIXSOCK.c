@@ -477,12 +477,11 @@ static int _create_unix_socket(const char *unix_path)
 	int ret = -1;
 	struct sockaddr_un server_sock;
 	int s;
-	struct stat st_dummy;
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
 		ulogd_log(ULOGD_ERROR,
-				"ulogd2: could not create unix socket\n");
+			  "ulogd2: could not create unix socket\n");
 		return -1;
 	}
 
@@ -490,19 +489,11 @@ static int _create_unix_socket(const char *unix_path)
 	strncpy(server_sock.sun_path, unix_path, sizeof(server_sock.sun_path));
 	server_sock.sun_path[sizeof(server_sock.sun_path)-1] = '\0';
 
-	if (stat(unix_path, &st_dummy) == 0 && st_dummy.st_size > 0) {
-		ulogd_log(ULOGD_ERROR,
-				"ulogd2: unix socket \'%s\' already exists\n",
-				unix_path);
-		close(s);
-		return -1;
-	}
-
 	ret = bind(s, (struct sockaddr *)&server_sock, sizeof(server_sock));
 	if (ret < 0) {
 		ulogd_log(ULOGD_ERROR,
-				"ulogd2: could not bind to unix socket \'%s\'\n",
-				server_sock.sun_path);
+			  "ulogd2: could not bind to unix socket '%s'\n",
+			  server_sock.sun_path);
 		close(s);
 		return -1;
 	}
@@ -510,8 +501,8 @@ static int _create_unix_socket(const char *unix_path)
 	ret = listen(s, 10);
 	if (ret < 0) {
 		ulogd_log(ULOGD_ERROR,
-				"ulogd2: could not bind to unix socket \'%s\'\n",
-				server_sock.sun_path);
+			  "ulogd2: could not listen to unix socket '%s'\n",
+			  server_sock.sun_path);
 		close(s);
 		return -1;
 	}
