@@ -29,6 +29,8 @@
 #define DEBUGP(x, args...)
 #endif
 
+static dbi_inst libdbi_instance;
+
 struct dbi_instance {
 	struct db_instance db_inst;
 
@@ -173,7 +175,6 @@ static int close_db_dbi(struct ulogd_pluginstance *upi)
 	ulogd_log(ULOGD_DEBUG, "dbi: closing connection\n");
 	dbi_conn_close(pi->dbh);
 	pi->dbh = NULL;
-	//dbi_shutdown();
 
 	return 0;
 }
@@ -195,14 +196,14 @@ static int open_db_dbi(struct ulogd_pluginstance *upi)
 
 	ulogd_log(ULOGD_ERROR, "Opening connection for db type %s\n",
 		  dbtype);
-	driver = dbi_driver_open(dbtype);
+	driver = dbi_driver_open_r(dbtype, libdbi_instance);
 	if (driver == NULL) {
 		ulogd_log(ULOGD_ERROR, "unable to load driver for db type %s\n",
 			  dbtype);
 		close_db_dbi(upi);
 		return -1;
 	}
-	pi->dbh = dbi_conn_new(dbtype);
+	pi->dbh = dbi_conn_new_r(dbtype, libdbi_instance);
 	if (pi->dbh == NULL) {
 		ulogd_log(ULOGD_ERROR, "unable to initialize db type %s\n",
 			  dbtype);
@@ -316,11 +317,14 @@ static struct ulogd_plugin dbi_plugin = {
 	.version	= VERSION,
 };
 
-void __attribute__ ((constructor)) init(void);
-
-void init(void)
+void __attribute__ ((constructor)) init(void)
 {
-	dbi_initialize(NULL);
+	dbi_initialize_r(NULL, &libdbi_instance);
 
 	ulogd_register_plugin(&dbi_plugin);
+}
+
+void __attribute__ ((destructor)) fini(void)
+{
+	dbi_shutdown_r(libdbi_instance);
 }
