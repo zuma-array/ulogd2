@@ -96,8 +96,6 @@ static int sql_createstmt(struct ulogd_pluginstance *upi)
 	    (procedure[strlen("INSERT")] == '\0' ||
 			procedure[strlen("INSERT")] == ' ')) {
 		char *stmt_val = mi->stmt;
-		char buf[ULOGD_MAX_KEYLEN];
-		char *underscore;
 
 		if(procedure[6] == '\0') {
 			/* procedure == "INSERT" */
@@ -112,13 +110,18 @@ static int sql_createstmt(struct ulogd_pluginstance *upi)
 			stmt_val += sprintf(stmt_val, "%s (", procedure);
 
 		for (i = 0; i < upi->input.num_keys; i++) {
+			char *underscore;
+
 			if (upi->input.keys[i].flags & ULOGD_KEYF_INACTIVE)
 				continue;
 
-			strncpy(buf, upi->input.keys[i].name, ULOGD_MAX_KEYLEN);	
-			while ((underscore = strchr(buf, '.')))
+			underscore = stmt_val;
+
+			stmt_val += sprintf(stmt_val, "%s,",
+					    upi->input.keys[i].name);
+
+			while ((underscore = strchr(underscore, '.')))
 				*underscore = '_';
-			stmt_val += sprintf(stmt_val, "%s,", buf);
 		}
 		*(stmt_val - 1) = ')';
 
