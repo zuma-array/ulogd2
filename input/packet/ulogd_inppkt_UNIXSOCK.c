@@ -371,7 +371,7 @@ struct ulogd_unixsock_option_t  {
 static int handle_packet(struct ulogd_pluginstance *upi, struct ulogd_unixsock_packet_t *pkt, uint16_t total_len)
 {
 	char *data = NULL;
-	struct iphdr *ip;
+	unsigned int ip_version = pkt->payload.version;
 	struct ulogd_key *ret = upi->output.keys;
 	uint8_t oob_family;
 	uint16_t payload_len;
@@ -387,22 +387,22 @@ static int handle_packet(struct ulogd_pluginstance *upi, struct ulogd_unixsock_p
 
 	payload_len = ntohs(pkt->payload_length);
 
-	ip = &pkt->payload;
-	if (ip->version == 4)
+	if (ip_version == 4)
 		oob_family = AF_INET;
-	else if (ip->version == 6)
+	else if (ip_version == 6)
 		oob_family = AF_INET6;
-	else oob_family = 0;
+	else
+		oob_family = 0;
 
 	okey_set_u8(&ret[UNIXSOCK_KEY_OOB_FAMILY], oob_family);
-	okey_set_ptr(&ret[UNIXSOCK_KEY_RAW_PCKT], ip);
+	okey_set_ptr(&ret[UNIXSOCK_KEY_RAW_PCKT], &pkt->payload);
 	okey_set_u32(&ret[UNIXSOCK_KEY_RAW_PCKTLEN], payload_len);
 
 	/* options */
 	if (total_len > payload_len + sizeof(uint16_t)) {
 		/* option starts at the next aligned address after the payload */
 		new_offset = USOCK_ALIGN(payload_len);
-		options_start = (void*)ip + new_offset;
+		options_start = (void*)&pkt->payload + new_offset;
 		data = options_start;
 		total_len -= (options_start - (char*)pkt);
 
@@ -460,7 +460,7 @@ static int handle_packet(struct ulogd_pluginstance *upi, struct ulogd_unixsock_p
 						"ulogd2: unknown option %d\n",
 						option_number);
 				break;
-			};
+			}
 		}
 	}
 
@@ -666,7 +666,7 @@ static int unixsock_instance_read_cb(int fd, unsigned int what, void *param)
 		}
 
 		/* handle_packet has shifted data in buffer */
-	};
+	}
 
 	return 0;
 }
