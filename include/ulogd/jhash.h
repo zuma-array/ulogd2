@@ -66,18 +66,18 @@ static inline u32 jhash(const void *key, u32 length, u32 initval)
 
 	c += length;
 	switch (len) {
-	case 11: c += ((u32)k[10]<<24);
-	case 10: c += ((u32)k[9]<<16);
-	case 9 : c += ((u32)k[8]<<8);
-	case 8 : b += ((u32)k[7]<<24);
-	case 7 : b += ((u32)k[6]<<16);
-	case 6 : b += ((u32)k[5]<<8);
-	case 5 : b += k[4];
-	case 4 : a += ((u32)k[3]<<24);
-	case 3 : a += ((u32)k[2]<<16);
-	case 2 : a += ((u32)k[1]<<8);
-	case 1 : a += k[0];
-	};
+	case 11: c += ((u32)k[10]<<24);	// fall through
+	case 10: c += ((u32)k[9]<<16);	// fall through
+	case 9 : c += ((u32)k[8]<<8);	// fall through
+	case 8 : b += ((u32)k[7]<<24);	// fall through
+	case 7 : b += ((u32)k[6]<<16);	// fall through
+	case 6 : b += ((u32)k[5]<<8);	// fall through
+	case 5 : b += k[4];		// fall through
+	case 4 : a += ((u32)k[3]<<24);	// fall through
+	case 3 : a += ((u32)k[2]<<16);	// fall through
+	case 2 : a += ((u32)k[1]<<8);	// fall through
+	case 1 : a += k[0];		// fall through
+	}
 
 	__jhash_mix(a,b,c);
 
