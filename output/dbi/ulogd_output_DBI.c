@@ -176,9 +176,9 @@ static int open_db_dbi(struct ulogd_pluginstance *upi)
 {
 	struct dbi_instance *pi = (struct dbi_instance *) upi->private;
 	char *server = host_ce(upi->config_kset).u.string;
-	char *user = user_ce(upi->config_kset).u.string;
-	char *pass = pass_ce(upi->config_kset).u.string;
-	char *db = db_ce(upi->config_kset).u.string;
+	char *user   = user_ce(upi->config_kset).u.string;
+	char *pass   = pass_ce(upi->config_kset).u.string;
+	char *db     = db_ce(upi->config_kset).u.string;
 	char *dbtype = dbtype_ce(upi->config_kset).u.string;
 	dbi_driver driver;
 	int ret;
@@ -203,13 +203,13 @@ static int open_db_dbi(struct ulogd_pluginstance *upi)
 		return -1;
 	}
 
-	if (server)
+	if (server[0])
 		dbi_conn_set_option(pi->dbh, "host", server);
-	if (user)
+	if (user[0])
 		dbi_conn_set_option(pi->dbh, "username", user);
-	if (pass)
+	if (pass[0])
 		dbi_conn_set_option(pi->dbh, "password", pass);
-	if (db)
+	if (db[0])
 		dbi_conn_set_option(pi->dbh, "dbname", db);
 
 	ret = dbi_conn_connect(pi->dbh);
