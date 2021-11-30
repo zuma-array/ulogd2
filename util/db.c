@@ -388,6 +388,7 @@ static void __format_query_db(struct ulogd_pluginstance *upi, char *start)
 		case ULOGD_RET_RAW:
 			ulogd_log(ULOGD_NOTICE,
 				"Unsupported RAW type is unsupported in SQL output");
+			break;
 		default:
 			ulogd_log(ULOGD_NOTICE,
 				"unknown type %d for %s\n",
