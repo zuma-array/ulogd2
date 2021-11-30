@@ -91,15 +91,6 @@ static struct config_keyset dbi_kset = {
 #define dbtype_ce(x)	(x->ces[DB_CE_NUM+6])
 
 
-/* lower-cases s in place */
-static void str_tolower(char *s)
-{
-	while(*s) {
-		*s = tolower(*s);
-		s++;
-	}
-}
-
 /* find out which columns the table has */
 static int get_columns_dbi(struct ulogd_pluginstance *upi)
 {
@@ -140,24 +131,25 @@ static int get_columns_dbi(struct ulogd_pluginstance *upi)
 	}
 
 	for (ui=1; ui<=upi->input.num_keys; ui++) {
-		char buf[ULOGD_MAX_KEYLEN+1];
-		char *underscore;
-		const char* field_name = dbi_result_get_field_name(pi->result, ui);
+		const char *field_name = dbi_result_get_field_name(pi->result, ui);
+		char *cp;
 
 		if (!field_name)
 			break;
 
-		/* replace all underscores with dots */
-		strncpy(buf, field_name, ULOGD_MAX_KEYLEN);
-		while ((underscore = strchr(buf, '_')))
-			*underscore = '.';
+		snprintf(upi->input.keys[ui - 1].name,
+			 sizeof(upi->input.keys[ui - 1].name),
+			 "%s", field_name);
 
-		str_tolower(buf);
+		/* down-case and replace all underscores with dots */
+		for (cp = upi->input.keys[ui - 1].name; *cp; cp++) {
+			if (*cp == '_')
+				*cp = '.';
+			else
+				*cp = tolower(*cp);
+		}
 
-		DEBUGP("field '%s' found: ", buf);
-
-		/* add it to list of input keys */
-		strncpy(upi->input.keys[ui-1].name, buf, ULOGD_MAX_KEYLEN);
+		DEBUGP("field '%s' found: ", upi->input.keys[ui - 1].name);
 	}
 
 	/* ID is a sequence */
