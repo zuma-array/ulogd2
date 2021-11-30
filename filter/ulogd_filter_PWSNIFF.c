@@ -35,9 +35,13 @@
 #define DEBUGP(format, args...)
 #endif
 
-
 #define PORT_POP3	110
 #define PORT_FTP	21
+
+enum pwsniff_output_keys {
+	PWSNIFF_OUT_KEY_USER,
+	PWSNIFF_OUT_KEY_PASS,
+};
 
 static uint16_t pwsniff_ports[] = {
 	PORT_POP3,
@@ -116,21 +120,17 @@ static int interp_pwsniff(struct ulogd_pluginstance *pi)
 
 	if (len) {
 		char *ptr;
-		ptr = (char *) malloc(len+1);
+		ptr = strndup((char *)begp, len);
 		if (!ptr)
 			return ULOGD_IRET_ERR;
-		strncpy(ptr, (char *)begp, len);
-		ptr[len] = '\0';
-		okey_set_ptr(&ret[0], ptr);
+		okey_set_ptr(&ret[PWSNIFF_OUT_KEY_USER], ptr);
 	}
 	if (pw_len) {
 		char *ptr;
-		ptr = (char *) malloc(pw_len+1);
+		ptr = strndup((char *)pw_begp, pw_len);
 		if (!ptr)
 			return ULOGD_IRET_ERR;
-		strncpy(ptr, (char *)pw_begp, pw_len);
-		ptr[pw_len] = '\0';
-		okey_set_ptr(&ret[1], ptr);
+		okey_set_ptr(&ret[PWSNIFF_OUT_KEY_PASS], ptr);
 	}
 	return ULOGD_IRET_OK;
 }
