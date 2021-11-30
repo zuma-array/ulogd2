@@ -474,9 +474,18 @@ static int handle_packet(struct ulogd_pluginstance *upi, struct ulogd_unixsock_p
 
 static int _create_unix_socket(const char *unix_path)
 {
+	struct sockaddr_un server_sock = { .sun_family = AF_UNIX };
 	int ret = -1;
-	struct sockaddr_un server_sock;
 	int s;
+
+	if (strlen(unix_path) >= sizeof(server_sock.sun_path)) {
+		ulogd_log(ULOGD_ERROR,
+			  "ulogd2: unix socket path '%s' too long\n",
+			  unix_path);
+		return -1;
+	}
+
+	strcpy(server_sock.sun_path, unix_path);
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
@@ -484,10 +493,6 @@ static int _create_unix_socket(const char *unix_path)
 			  "ulogd2: could not create unix socket\n");
 		return -1;
 	}
-
-	server_sock.sun_family = AF_UNIX;
-	strncpy(server_sock.sun_path, unix_path, sizeof(server_sock.sun_path));
-	server_sock.sun_path[sizeof(server_sock.sun_path)-1] = '\0';
 
 	ret = bind(s, (struct sockaddr *)&server_sock, sizeof(server_sock));
 	if (ret < 0) {
