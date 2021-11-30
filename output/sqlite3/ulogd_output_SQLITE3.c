@@ -301,9 +301,6 @@ static int
 sqlite3_init_db(struct ulogd_pluginstance *pi)
 {
 	struct sqlite3_priv *priv = (void *)pi->private;
-	char buf[ULOGD_MAX_KEYLEN + 1];
-	char *underscore;
-	struct field *f;
 	sqlite3_stmt *schema_stmt;
 	int col, num_cols;
 
@@ -323,24 +320,27 @@ sqlite3_init_db(struct ulogd_pluginstance *pi)
 	}
 
 	for (col = 0; col < num_cols; col++) {
-		strncpy(buf, sqlite3_column_name(schema_stmt, col), ULOGD_MAX_KEYLEN);
-
-		/* replace all underscores with dots */
-		while ((underscore = strchr(buf, '_')) != NULL)
-			*underscore = '.';
-
-		DEBUGP("field '%s' found\n", buf);
+		char *underscore;
+		struct field *f;
 
 		/* prepend it to the linked list */
 		if ((f = calloc(1, sizeof(struct field))) == NULL) {
 			ulogd_log(ULOGD_ERROR, "SQLITE3: out of memory\n");
 			return -1;
 		}
-		strncpy(f->name, buf, ULOGD_MAX_KEYLEN);
+		snprintf(f->name, sizeof(f->name),
+			 "%s", sqlite3_column_name(schema_stmt, col));
 
-		if ((f->key = ulogd_find_key(pi, buf)) == NULL) {
+		/* replace all underscores with dots */
+		for (underscore = f->name;
+		     (underscore = strchr(underscore, '_')) != NULL; )
+			*underscore = '.';
+
+		DEBUGP("field '%s' found\n", f->name);
+
+		if ((f->key = ulogd_find_key(pi, f->name)) == NULL) {
 			ulogd_log(ULOGD_ERROR,
-				  "SQLITE3: unknown input key: %s\n", buf);
+				  "SQLITE3: unknown input key: %s\n", f->name);
 			free(f);
 			return -1;
 		}
