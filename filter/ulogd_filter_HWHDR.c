@@ -207,19 +207,17 @@ static int interp_mac2str(struct ulogd_pluginstance *pi)
 		okey_set_u16(&ret[KEY_MAC_TYPE], type);
 	}
 
-	switch (type) {
-		case ARPHRD_ETHER:
-			parse_ethernet(ret, inp);
-		default:
-			if (!pp_is_valid(inp, KEY_RAW_MAC))
-				return ULOGD_IRET_OK;
-			/* convert raw header to string */
-			return parse_mac2str(ret,
-					    ikey_get_ptr(&inp[KEY_RAW_MAC]),
-					    KEY_MAC_ADDR,
-					    ikey_get_u16(&inp[KEY_RAW_MACLEN]));
-	}
-	return ULOGD_IRET_OK;
+	if (type == ARPHRD_ETHER)
+		parse_ethernet(ret, inp);
+
+	if (!pp_is_valid(inp, KEY_RAW_MAC))
+		return ULOGD_IRET_OK;
+
+	/* convert raw header to string */
+	return parse_mac2str(ret,
+			     ikey_get_ptr(&inp[KEY_RAW_MAC]),
+			     KEY_MAC_ADDR,
+			     ikey_get_u16(&inp[KEY_RAW_MACLEN]));
 }
 
 
