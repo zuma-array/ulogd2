@@ -661,12 +661,11 @@ pluginstance_alloc_init(struct ulogd_plugin *pl, char *pi_id,
 	}
 	size += pl->input.num_keys * sizeof(struct ulogd_key);
 	size += pl->output.num_keys * sizeof(struct ulogd_key);
-	pi = malloc(size);
+	pi = calloc(1, size);
 	if (!pi)
 		return NULL;
 
 	/* initialize */
-	memset(pi, 0, size);
 	INIT_LLIST_HEAD(&pi->list);
 	INIT_LLIST_HEAD(&pi->plist);
 	pi->plugin = pl;

@@ -181,17 +181,13 @@ static int get_columns_pgsql(struct ulogd_pluginstance *upi)
 
 	upi->input.num_keys = PQntuples(pi->pgres);
 	ulogd_log(ULOGD_DEBUG, "%u fields in table\n", upi->input.num_keys);
-	upi->input.keys = malloc(sizeof(struct ulogd_key) *
-						upi->input.num_keys);
+	upi->input.keys = calloc(upi->input.num_keys, sizeof(*upi->input.keys));
 	if (!upi->input.keys) {
 		upi->input.num_keys = 0;
 		ulogd_log(ULOGD_ERROR, "ENOMEM\n");
 		PQclear(pi->pgres);
 		return -ENOMEM;
 	}
-
-	memset(upi->input.keys, 0, sizeof(struct ulogd_key) *
-						upi->input.num_keys);
 
 	for (i = 0; i < PQntuples(pi->pgres); i++) {
 		char buf[ULOGD_MAX_KEYLEN+1];

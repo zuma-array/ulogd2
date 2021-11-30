@@ -129,17 +129,13 @@ static int get_columns_dbi(struct ulogd_pluginstance *upi)
 	upi->input.num_keys = dbi_result_get_numfields(pi->result);
 	ulogd_log(ULOGD_DEBUG, "%u fields in table\n", upi->input.num_keys);
 
-	upi->input.keys = malloc(sizeof(struct ulogd_key) *
-						upi->input.num_keys);
+	upi->input.keys = calloc(upi->input.num_keys, sizeof(*upi->input.keys));
 	if (!upi->input.keys) {
 		upi->input.num_keys = 0;
 		ulogd_log(ULOGD_ERROR, "ENOMEM\n");
 		dbi_result_free(pi->result);
 		return -ENOMEM;
 	}
-
-	memset(upi->input.keys, 0, sizeof(struct ulogd_key) *
-						upi->input.num_keys);
 
 	for (ui=1; ui<=upi->input.num_keys; ui++) {
 		char buf[ULOGD_MAX_KEYLEN+1];

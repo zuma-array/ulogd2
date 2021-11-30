@@ -85,8 +85,7 @@ struct ipfix_msg *ipfix_msg_alloc(size_t len, uint32_t oid, int tid)
 	    (len < IPFIX_HDRLEN + IPFIX_SET_HDRLEN))
 		return NULL;
 
-	msg = malloc(sizeof(struct ipfix_msg) + len);
-	memset(msg, 0, sizeof(struct ipfix_msg));
+	msg = calloc(1, sizeof(struct ipfix_msg) + len);
 	msg->tid = tid;
 	msg->end = msg->data + len;
 	msg->tail = msg->data + IPFIX_HDRLEN;
@@ -95,7 +94,6 @@ struct ipfix_msg *ipfix_msg_alloc(size_t len, uint32_t oid, int tid)
 
 	/* Initialize message header */
 	hdr = ipfix_msg_hdr(msg);
-	memset(hdr, 0, IPFIX_HDRLEN);
 	hdr->version = htons(IPFIX_VERSION);
 	hdr->oid = htonl(oid);
 
