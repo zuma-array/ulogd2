@@ -342,8 +342,12 @@ sqlite3_init_db(struct ulogd_pluginstance *pi)
 		}
 		strncpy(f->name, buf, ULOGD_MAX_KEYLEN);
 
-		if ((f->key = ulogd_find_key(pi, buf)) == NULL)
+		if ((f->key = ulogd_find_key(pi, buf)) == NULL) {
+			ulogd_log(ULOGD_ERROR,
+				  "SQLITE3: unknown input key: %s\n", buf);
+			free(f);
 			return -1;
+		}
 
 		TAILQ_INSERT_TAIL(&priv->fields, f, link);
 	}
