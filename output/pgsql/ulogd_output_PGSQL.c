@@ -232,48 +232,38 @@ static int open_db_pgsql(struct ulogd_pluginstance *upi)
 	char *schema = NULL;
 	char pgbuf[128];
 
-	if (!connstr) {
-		char *server = host_ce(upi->config_kset).u.string;
-		unsigned int port = port_ce(upi->config_kset).u.value;
-		char *user = user_ce(upi->config_kset).u.string;
-		char *pass = pass_ce(upi->config_kset).u.string;
-		char *db = db_ce(upi->config_kset).u.string;
+	if (!connstr[0]) {
+		char         *server = host_ce(upi->config_kset).u.string;
+		unsigned int  port   = port_ce(upi->config_kset).u.value;
+		char         *user   = user_ce(upi->config_kset).u.string;
+		char         *pass   = pass_ce(upi->config_kset).u.string;
+		char         *db     = db_ce(upi->config_kset).u.string;
+		char         *cp;
 		/* 80 is more than what we need for the fixed parts below */
 		len = 80 + strlen(user) + strlen(db);
 
 		/* hostname and  and password are the only optionals */
-		if (server)
+		if (server[0])
 			len += strlen(server);
-		if (pass)
+		if (pass[0])
 			len += strlen(pass);
 		if (port)
 			len += 20;
 
-		connstr = (char *) malloc(len);
+		cp = connstr = malloc(len);
 		if (!connstr)
 			return -ENOMEM;
-		connstr[0] = '\0';
 
-		if (server && strlen(server) > 0) {
-			strcpy(connstr, " host=");
-			strcat(connstr, server);
-		}
+		if (server[0])
+			cp += sprintf(cp, "host=%s ", server);
 
-		if (port) {
-			char portbuf[20];
-			snprintf(portbuf, sizeof(portbuf), " port=%u", port);
-			strcat(connstr, portbuf);
-		}
+		if (port)
+			cp += sprintf(cp, "port=%u ", port);
 
-		strcat(connstr, " dbname=");
-		strcat(connstr, db);
-		strcat(connstr, " user=");
-		strcat(connstr, user);
+		cp += sprintf(cp, "dbname=%s user=%s", db, user);
 
-		if (pass) {
-			strcat(connstr, " password=");
-			strcat(connstr, pass);
-		}
+		if (pass[0])
+			cp += sprintf(cp, " password=%s", pass);
 	}
 	pi->dbh = PQconnectdb(connstr);
 	if (PQstatus(pi->dbh) != CONNECTION_OK) {
