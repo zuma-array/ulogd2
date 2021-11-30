@@ -226,9 +226,9 @@ sqlite3_createstmt(struct ulogd_pluginstance *pi)
 		ulogd_log(ULOGD_ERROR, "SQLITE3: out of memory\n");
 		return -1;
 	}
+	stmt_pos = priv->stmt;
 
-	sprintf(priv->stmt, "insert into %s (", table_ce(pi));
-	stmt_pos = priv->stmt + strlen(priv->stmt);
+	stmt_pos += sprintf(stmt_pos, "insert into %s (", table_ce(pi));
 
 	tailq_for_each(f, priv->fields, link) {
 		strncpy(buf, f->name, ULOGD_MAX_KEYLEN);
@@ -236,21 +236,17 @@ sqlite3_createstmt(struct ulogd_pluginstance *pi)
 		while ((underscore = strchr(buf, '.')))
 			*underscore = '_';
 
-		sprintf(stmt_pos, "%s,", buf);
-		stmt_pos = priv->stmt + strlen(priv->stmt);
+		stmt_pos += sprintf(stmt_pos, "%s,", buf);
 
 		cols++;
 	}
 
 	*(stmt_pos - 1) = ')';
 
-	sprintf(stmt_pos, " values (");
-	stmt_pos = priv->stmt + strlen(priv->stmt);
+	stmt_pos += sprintf(stmt_pos, " values (");
 
-	for (i = 0; i < cols - 1; i++) {
-		sprintf(stmt_pos,"?,");
-		stmt_pos += 2;
-	}
+	for (i = 0; i < cols - 1; i++)
+		stmt_pos += sprintf(stmt_pos, "?,");
 
 	sprintf(stmt_pos, "?)");
 	ulogd_log(ULOGD_DEBUG, "%s: stmt='%s'\n", pi->id, priv->stmt);
