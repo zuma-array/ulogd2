@@ -236,18 +236,20 @@ static int escape_string_dbi(struct ulogd_pluginstance *upi,
 	}
 
 	ret = dbi_conn_quote_string_copy(pi->dbh, src, &newstr);
-	if (ret <= 2)
+	if (ret == 0) {
+		*dst = '\0';
 		return 0;
+	}
 
 	/* dbi_conn_quote_string_copy returns a quoted string,
 	 * but __interp_db already quotes the string
 	 * So we return a string without the quotes
 	 */
-	strncpy(dst,newstr+1,ret-2);
-	dst[ret-2] = '\0';
+	memcpy(dst, newstr + 1, ret - 2);
+	dst[ret - 2] = '\0';
 	free(newstr);
 
-	return (ret-2);
+	return ret - 2;
 }
 
 static int execute_dbi(struct ulogd_pluginstance *upi,
