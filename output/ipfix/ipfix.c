@@ -8,8 +8,6 @@
 /* These forward declarations are needed since ulogd.h doesn't like to be the first */
 #include <ulogd/linuxlist.h>
 
-#define __packed		__attribute__((packed))
-
 #include "ipfix.h"
 
 #include <ulogd/ulogd.h>

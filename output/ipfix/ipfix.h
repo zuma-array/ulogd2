@@ -19,7 +19,7 @@ struct ipfix_hdr {
 	uint32_t seqno;
 	uint32_t oid;				/* Observation Domain ID */
 	uint8_t data[];
-} __packed;
+} __attribute__((packed));
 
 #define IPFIX_HDRLEN		sizeof(struct ipfix_hdr)
 
@@ -32,7 +32,7 @@ struct ipfix_templ_hdr {
 	uint16_t tid;
 	uint16_t cnt;
 	uint8_t data[];
-} __packed;
+} __attribute__((packed));
 
 #define IPFIX_TEMPL_HDRLEN(nfields)	sizeof(struct ipfix_templ_hdr) + (sizeof(uint16_t) * 2 * nfields)
 
@@ -42,7 +42,7 @@ struct ipfix_set_hdr {
 	uint16_t id;
 	uint16_t len;
 	uint8_t data[];
-} __packed;
+} __attribute__((packed));
 
 #define IPFIX_SET_HDRLEN		sizeof(struct ipfix_set_hdr)
 
@@ -67,7 +67,7 @@ struct vy_ipfix_data {
 	uint16_t dport;
 	uint8_t l4_proto;
 	uint32_t aid;				/* Application ID */
-} __packed;
+} __attribute__((packed));
 
 #define VY_IPFIX_SID		256
 

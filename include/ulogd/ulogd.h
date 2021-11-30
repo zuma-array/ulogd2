@@ -28,11 +28,6 @@
 
 /* types without length */
 #define ULOGD_RET_NONE		0x0000
-#define __packed		__attribute__((packed))
-#define __noreturn		__attribute__((noreturn))
-#define __cold			__attribute__((cold))
-
-#define __packed		__attribute__((packed))
 
 #define ULOGD_RET_INT8		0x0001
 #define ULOGD_RET_INT16		0x0002
