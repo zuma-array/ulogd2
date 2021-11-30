@@ -48,7 +48,7 @@
 
 struct field {
 	TAILQ_ENTRY(field) link;
-	char name[ULOGD_MAX_KEYLEN];
+	char name[ULOGD_MAX_KEYLEN + 1];
 	struct ulogd_key *key;
 };
 
@@ -214,7 +214,7 @@ sqlite3_createstmt(struct ulogd_pluginstance *pi)
 {
 	struct sqlite3_priv *priv = (void *)pi->private;
 	struct field *f;
-	char buf[ULOGD_MAX_KEYLEN];
+	char buf[ULOGD_MAX_KEYLEN + 1];
 	char *underscore;
 	char *stmt_pos;
 	int i, cols = 0;
@@ -305,7 +305,7 @@ static int
 sqlite3_init_db(struct ulogd_pluginstance *pi)
 {
 	struct sqlite3_priv *priv = (void *)pi->private;
-	char buf[ULOGD_MAX_KEYLEN];
+	char buf[ULOGD_MAX_KEYLEN + 1];
 	char *underscore;
 	struct field *f;
 	sqlite3_stmt *schema_stmt;
