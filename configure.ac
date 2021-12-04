@@ -52,7 +52,7 @@ AC_ARG_ENABLE([nflog],
               [enable_nflog=$enableval],
               [enable_nflog=yes])
 AS_IF([test "x$enable_nflog" = "xyes"],
-      [PKG_CHECK_MODULES([LIBNETFILTER_LOG], [libnetfilter_log >= 1.0.0])
+      [PKG_CHECK_MODULES([LIBNETFILTER_LOG], [libnetfilter_log >= 1.0.2])
        AC_DEFINE([BUILD_NFLOG], [1], [Building nflog module])],
       [enable_nflog=no])
 AM_CONDITIONAL([BUILD_NFLOG], [test "x$enable_nflog" = "xyes"])
