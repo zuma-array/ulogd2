@@ -214,10 +214,8 @@ sqlite3_createstmt(struct ulogd_pluginstance *pi)
 {
 	struct sqlite3_priv *priv = (void *)pi->private;
 	struct field *f;
-	char buf[ULOGD_MAX_KEYLEN + 1];
-	char *underscore;
-	char *stmt_pos;
 	int i, cols = 0;
+	char *stmt_pos;
 
 	if (priv->stmt != NULL)
 		free(priv->stmt);
@@ -231,13 +229,7 @@ sqlite3_createstmt(struct ulogd_pluginstance *pi)
 	stmt_pos += sprintf(stmt_pos, "insert into %s (", table_ce(pi));
 
 	tailq_for_each(f, priv->fields, link) {
-		strncpy(buf, f->name, ULOGD_MAX_KEYLEN);
-
-		while ((underscore = strchr(buf, '.')))
-			*underscore = '_';
-
-		stmt_pos += sprintf(stmt_pos, "%s,", buf);
-
+		stmt_pos += sprintf(stmt_pos, "%s,", f->name);
 		cols++;
 	}
 
@@ -269,10 +261,15 @@ sqlite3_createstmt(struct ulogd_pluginstance *pi)
 static struct ulogd_key *
 ulogd_find_key(struct ulogd_pluginstance *pi, const char *name)
 {
+	char buf[ULOGD_MAX_KEYLEN + 1] = "";
 	unsigned int i;
 
+	/* replace all underscores with dots */
+	for (i = 0; i < sizeof(buf) - 1 && name[i]; ++i)
+		buf[i] = name[i] != '_' ? name[i] : '.';
+
 	for (i = 0; i < pi->input.num_keys; i++) {
-		if (strcmp(pi->input.keys[i].name, name) == 0)
+		if (strcmp(pi->input.keys[i].name, buf) == 0)
 			return &pi->input.keys[i];
 	}
 
@@ -330,11 +327,6 @@ sqlite3_init_db(struct ulogd_pluginstance *pi)
 		}
 		snprintf(f->name, sizeof(f->name),
 			 "%s", sqlite3_column_name(schema_stmt, col));
-
-		/* replace all underscores with dots */
-		for (underscore = f->name;
-		     (underscore = strchr(underscore, '_')) != NULL; )
-			*underscore = '.';
 
 		DEBUGP("field '%s' found\n", f->name);
 
