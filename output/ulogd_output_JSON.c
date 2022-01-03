@@ -33,6 +33,10 @@
 #include <ulogd/conffile.h>
 #include <jansson.h>
 
+#ifndef UNIX_PATH_MAX
+#define UNIX_PATH_MAX 108
+#endif
+
 #ifndef ULOGD_JSON_DEFAULT
 #define ULOGD_JSON_DEFAULT	"/var/log/ulogd.json"
 #endif
@@ -146,23 +150,21 @@ static void close_socket(struct json_priv *op) {
 
 static int _connect_socket_unix(struct ulogd_pluginstance *pi)
 {
+	const char *socket_path = file_ce(pi->config_kset).u.string;
 	struct json_priv *op = (struct json_priv *) &pi->private;
-	struct sockaddr_un u_addr;
+	struct sockaddr_un u_addr = { .sun_family = AF_UNIX };
 	int sfd;
 
 	close_socket(op);
 
-	ulogd_log(ULOGD_DEBUG, "connecting to unix:%s\n",
-		  file_ce(pi->config_kset).u.string);
+	ulogd_log(ULOGD_DEBUG, "connecting to unix:%s\n", socket_path);
+	strcpy(u_addr.sun_path, socket_path);
 
 	sfd = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (sfd == -1) {
+	if (sfd == -1)
 		return -1;
-	}
-	u_addr.sun_family = AF_UNIX;
-	strncpy(u_addr.sun_path, file_ce(pi->config_kset).u.string,
-		sizeof(u_addr.sun_path) - 1);
-	if (connect(sfd, (struct sockaddr *) &u_addr, sizeof(struct sockaddr_un)) == -1) {
+
+	if (connect(sfd, (struct sockaddr *) &u_addr, sizeof(u_addr)) == -1) {
 		close(sfd);
 		return -1;
 	}
@@ -430,9 +432,33 @@ static void reopen_file(struct ulogd_pluginstance *upi)
 	}
 }
 
+static int validate_unix_socket(struct ulogd_pluginstance *upi)
+{
+	const char *socket_path = file_ce(upi->config_kset).u.string;
+
+	if (!socket_path[0]) {
+		ulogd_log(ULOGD_ERROR, "missing unix socket path");
+		return -1;
+	}
+	if (strlen(socket_path) >= UNIX_PATH_MAX) {
+		ulogd_log(ULOGD_ERROR, "unix socket path `%s' is longer than %u\n",
+			  file_ce(upi->config_kset).u.string, UNIX_PATH_MAX);
+		return -1;
+	}
+
+	return 0;
+}
+
 static void reopen_socket(struct ulogd_pluginstance *upi)
 {
+	struct json_priv *op = (struct json_priv *) &upi->private;
+
 	ulogd_log(ULOGD_NOTICE, "JSON: reopening socket\n");
+
+	if (op->mode == JSON_MODE_UNIX &&
+	    validate_unix_socket(upi) < 0)
+		return;
+
 	if (_connect_socket(upi) < 0) {
 		ulogd_log(ULOGD_ERROR, "can't open JSON "
 				       "socket: %s\n",
@@ -508,6 +534,10 @@ static int json_init_socket(struct ulogd_pluginstance *upi)
 	if (host_ce(upi->config_kset).u.string == NULL)
 		return -1;
 	if (port_ce(upi->config_kset).u.string == NULL)
+		return -1;
+
+	if (op->mode == JSON_MODE_UNIX &&
+	    validate_unix_socket(upi) < 0)
 		return -1;
 
 	op->sock = -1;
