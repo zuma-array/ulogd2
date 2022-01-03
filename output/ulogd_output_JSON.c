@@ -531,11 +531,6 @@ static int json_init_socket(struct ulogd_pluginstance *upi)
 {
 	struct json_priv *op = (struct json_priv *) &upi->private;
 
-	if (host_ce(upi->config_kset).u.string == NULL)
-		return -1;
-	if (port_ce(upi->config_kset).u.string == NULL)
-		return -1;
-
 	if (op->mode == JSON_MODE_UNIX &&
 	    validate_unix_socket(upi) < 0)
 		return -1;
