@@ -65,7 +65,7 @@ logfile="/var/log/ulogd.log"
 #stack=log2:NFLOG,base1:BASE,mark1:MARK,ifi1:IFINDEX,ip2str1:IP2STR,print1:PRINTPKT,emu1:LOGEMU
 
 # this is a stack for packet-based logging via GPRINT
-#stack=log1:NFLOG,gp1:GPRINT
+#stack=log1:NFLOG,base1:BASE,gp1:GPRINT
 
 # this is a stack for flow-based logging via LOGEMU
 #stack=ct1:NFCT,ip2str1:IP2STR,print1:PRINTFLOW,emu1:LOGEMU
