@@ -320,7 +320,6 @@ sqlite3_init_db(struct ulogd_pluginstance *pi)
 	}
 
 	for (col = 0; col < num_cols; col++) {
-		char *underscore;
 		struct field *f;
 
 		/* prepend it to the linked list */
