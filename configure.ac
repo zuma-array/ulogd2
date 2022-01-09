@@ -176,8 +176,13 @@ AM_CONDITIONAL([HAVE_MYSQL], [test "x$libmysqlclient_LIBS" != "x"])
 
 AC_ARG_ENABLE([sqlite3],
               [AS_HELP_STRING([--enable-sqlite3], [Enable SQLITE3 output plugin [default=test]])])
-AS_IF([test "x$enable_sqlite3" != "xno"],
-      [PKG_CHECK_MODULES([libsqlite3], [sqlite3], [], [:])])
+AS_IF([test "x$enable_sqlite3" != "xno"], [
+  PKG_CHECK_MODULES([libsqlite3], [sqlite3], [], [
+    AS_IF([test "x$enable_sqlite3" = "xyes"], [
+      AC_MSG_ERROR([$libsqlite3_PKG_ERRORS])
+    ])
+  ])
+])
 AS_IF([test "x$libsqlite3_LIBS" != "x"], [enable_sqlite3=yes], [enable_sqlite3=no])
 AM_CONDITIONAL([HAVE_SQLITE3], [test "x$libsqlite3_LIBS" != "x"])
 
