@@ -87,10 +87,55 @@ AM_CONDITIONAL([HAVE_PGSQL], [test "x$PQLIBPATH" != "x"])
 
 AC_ARG_ENABLE([mysql],
               [AS_HELP_STRING([--enable-mysql], [Enable MySQL output plugin [default=test]])])
-AS_IF([test "x$enable_mysql" != "xno"],
-      [CT_CHECK_MYSQL_DB()])
-AS_IF([test "x$MYSQL_LIB" != "x"], [enable_mysql=yes], [enable_mysql=no])
-AM_CONDITIONAL([HAVE_MYSQL], [test "x$MYSQL_LIB" != "x"])
+AS_IF([test "x$enable_mysql" != "xno"], [
+
+  PKG_CHECK_EXISTS([mysqlclient],
+                   [PKG_CHECK_MODULES([libmysqlclient], [mysqlclient])],
+                   [
+
+    AC_ARG_WITH([mysql-config],
+                [AS_HELP_STRING([--with-mysql-config=PATH], [Path to the mysql_config script])],
+                [mysql_config="$withval"], [mysql_config=mysql_config])
+
+    AC_MSG_CHECKING([for mysql_config])
+
+    AS_IF([command -v "$mysql_config" >/dev/null], [
+
+      MYSQL_CLIENT_CFLAGS=`$mysql_config --cflags`
+      MYSQL_CLIENT_LIBS=`$mysql_config --libs`
+
+      AC_SUBST([MYSQL_CLIENT_CFLAGS])
+      AC_SUBST([MYSQL_CLIENT_LIBS])
+
+      AC_MSG_RESULT([$mysql_config])
+
+      dnl Some distro's don't put mysql_config in the same package as the
+      dnl headers and .so sym-links.  Therefore, it is possible that the former
+      dnl may be available, but the latter may not.  Hence, we check explicitly
+      dnl for mysql.h.
+
+      ulogd_save_CPPFLAGS="$CPPFLAGS"
+      CPPFLAGS="$MYSQL_CLIENT_CFLAGS"
+      AC_CHECK_HEADER([mysql.h], [
+
+        libmysqlclient_CFLAGS="$MYSQL_CLIENT_CFLAGS"
+        libmysqlclient_LIBS="$MYSQL_CLIENT_LIBS"
+
+        AC_SUBST([libmysqlclient_CFLAGS])
+        AC_SUBST([libmysqlclient_LIBS])
+
+      ])
+      CPPFLAGS="$ulogd_save_CPPFLAGS"
+
+    ], [
+      AC_MSG_RESULT([no])
+    ])
+
+  ])
+
+])
+AS_IF([test "x$libmysqlclient_LIBS" != "x"], [enable_mysql=yes], [enable_mysql=no])
+AM_CONDITIONAL([HAVE_MYSQL], [test "x$libmysqlclient_LIBS" != "x"])
 
 AC_ARG_ENABLE([sqlite3],
               [AS_HELP_STRING([--enable-sqlite3], [Enable SQLITE3 output plugin [default=test]])])
