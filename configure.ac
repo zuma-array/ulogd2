@@ -80,10 +80,35 @@ AM_CONDITIONAL([BUILD_NFACCT], [test "x$enable_nfacct" = "xyes"])
 
 AC_ARG_ENABLE([pgsql],
               [AS_HELP_STRING([--enable-pgsql], [Enable PostgreSQL output plugin [default=test]])])
-AS_IF([test "x$enable_pgsql" != "xno"],
-      [CT_CHECK_POSTGRES_DB()])
-AS_IF([test "x$PQLIBPATH" != "x"], [enable_pgsql=yes], [enable_pgsql=no])
-AM_CONDITIONAL([HAVE_PGSQL], [test "x$PQLIBPATH" != "x"])
+AS_IF([test "x$enable_pgsql" != "xno"], [
+
+  PKG_CHECK_EXISTS([libpq], [PKG_CHECK_MODULES([libpq], [libpq])], [
+
+    AC_ARG_WITH([pg_config],
+                [AS_HELP_STRING([--with-pg-config=PATH], [Path to the pg_config script])],
+                [pg_config="$withval"], [pg_config=pg_config])
+
+    AC_MSG_CHECKING([for pg_config])
+
+    AS_IF([command -v "$pg_config" >/dev/null], [
+
+      libpq_CFLAGS="`$pg_config --includedir`"
+      libpq_LIBS="`$pg_config --libdir` -lpq"
+
+      AC_SUBST([libpq_CFLAGS])
+      AC_SUBST([libpq_LIBS])
+
+      AC_MSG_RESULT([$pg_config])
+
+    ], [
+      AC_MSG_RESULT([no])
+    ])
+
+  ])
+
+])
+AS_IF([test "x$libpq_LIBS" != "x"], [enable_pgsql=yes], [enable_pgsql=no])
+AM_CONDITIONAL([HAVE_PGSQL], [test "x$libpq_LIBS" != "x"])
 
 AC_ARG_ENABLE([mysql],
               [AS_HELP_STRING([--enable-mysql], [Enable MySQL output plugin [default=test]])])
