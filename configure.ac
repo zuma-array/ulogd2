@@ -104,6 +104,12 @@ AS_IF([test "x$enable_pgsql" != "xno"], [
       AC_MSG_RESULT([no])
     ])
 
+    AS_IF([test "x$libpq_LIBS" = "x"], [
+      AS_IF([test "x$enable_pgsql" = "xyes"], [
+        AC_MSG_ERROR([libpq not found])
+      ])
+    ])
+
   ])
 
 ])
