@@ -171,8 +171,13 @@ AM_CONDITIONAL([HAVE_SQLITE3], [test "x$libsqlite3_LIBS" != "x"])
 
 AC_ARG_ENABLE([dbi],
               [AS_HELP_STRING([--enable-dbi], [Enable DBI output plugin [default=test]])])
-AS_IF([test "x$enable_dbi" != "xno"],
-      [PKG_CHECK_MODULES([libdbi], [dbi], [], [:])])
+AS_IF([test "x$enable_dbi" != "xno"], [
+  PKG_CHECK_MODULES([libdbi], [dbi], [], [
+    AS_IF([test "x$enable_dbi" = "xyes"], [
+      AC_MSG_ERROR([$libdbi_PKG_ERRORS])
+    ])
+  ])
+])
 AS_IF([test "x$libdbi_LIBS" != "x"], [enable_dbi=yes], [enable_dbi=no])
 AM_CONDITIONAL([HAVE_DBI], [test "x$libdbi_LIBS" != "x"])
 
