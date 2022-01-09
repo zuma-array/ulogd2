@@ -78,47 +78,47 @@ AS_IF([test "x$enable_nfacct" = "xyes"],
       [enable_nfacct=no])
 AM_CONDITIONAL([BUILD_NFACCT], [test "x$enable_nfacct" = "xyes"])
 
-AC_ARG_WITH([pgsql],
-            [AS_HELP_STRING([--without-pgsql], [Build without postgresql output plugin [default=test]])])
-AS_IF([test "x$with_pgsql" != "xno"],
+AC_ARG_ENABLE([pgsql],
+              [AS_HELP_STRING([--enable-pgsql], [Enable PostgreSQL output plugin [default=test]])])
+AS_IF([test "x$enable_pgsql" != "xno"],
       [CT_CHECK_POSTGRES_DB()])
 AS_IF([test "x$PQLIBPATH" != "x"], [enable_pgsql=yes], [enable_pgsql=no])
 AM_CONDITIONAL([HAVE_PGSQL], [test "x$PQLIBPATH" != "x"])
 
-AC_ARG_WITH([mysql],
-            [AS_HELP_STRING([--without-mysql], [Build without mysql output plugin [default=test]])])
-AS_IF([test "x$with_mysql" != "xno"],
+AC_ARG_ENABLE([mysql],
+              [AS_HELP_STRING([--enable-mysql], [Enable MySQL output plugin [default=test]])])
+AS_IF([test "x$enable_mysql" != "xno"],
       [CT_CHECK_MYSQL_DB()])
 AS_IF([test "x$MYSQL_LIB" != "x"], [enable_mysql=yes], [enable_mysql=no])
 AM_CONDITIONAL([HAVE_MYSQL], [test "x$MYSQL_LIB" != "x"])
 
-AC_ARG_WITH([sqlite],
-            [AS_HELP_STRING([--without-sqlite], [Build without SQLITE3 output plugin [default=test]])])
-AS_IF([test "x$with_sqlite" != "xno"],
+AC_ARG_ENABLE([sqlite3],
+              [AS_HELP_STRING([--enable-sqlite3], [Enable SQLITE3 output plugin [default=test]])])
+AS_IF([test "x$enable_sqlite3" != "xno"],
       [PKG_CHECK_MODULES([libsqlite3], [sqlite3], [], [:])])
 AS_IF([test "x$libsqlite3_LIBS" != "x"], [enable_sqlite3=yes], [enable_sqlite3=no])
 AM_CONDITIONAL([HAVE_SQLITE3], [test "x$libsqlite3_LIBS" != "x"])
 
-AC_ARG_WITH([dbi],
-            [AS_HELP_STRING([--without-dbi], [Build without DBI output plugin [default=test]])])
-AS_IF([test "x$with_dbi" != "xno"],
+AC_ARG_ENABLE([dbi],
+              [AS_HELP_STRING([--enable-dbi], [Enable DBI output plugin [default=test]])])
+AS_IF([test "x$enable_dbi" != "xno"],
       [CT_CHECK_DBI()])
 AS_IF([test "x$DBI_LIB" != "x"], [enable_dbi=yes], [enable_dbi=no])
 AM_CONDITIONAL(HAVE_DBI, [test "x$DBI_LIB" != "x"])
 
-AC_ARG_WITH([pcap],
-            [AS_HELP_STRING([--without-pcap], [Build without PCAP output plugin [default=test]])])
-AS_IF([test "x$with_pcap" != "xno"],
+AC_ARG_ENABLE([pcap],
+              [AS_HELP_STRING([--enable-pcap], [Enable PCAP output plugin [default=test]])])
+AS_IF([test "x$enable_pcap" != "xno"],
       [AC_SEARCH_LIBS([pcap_close], [pcap], [libpcap_LIBS="-lpcap"; LIBS=""])
        AC_SUBST([libpcap_LIBS])])
 AS_IF([test "x$libpcap_LIBS" != "x"], [enable_pcap=yes], [enable_pcap=no])
 AM_CONDITIONAL([HAVE_PCAP], [test "x$libpcap_LIBS" != "x"])
 
-AC_ARG_WITH([jansson],
-            [AS_HELP_STRING([--without-jansson], [Build without JSON output plugin [default=test]])])
-AS_IF([test "x$with_jansson" != "xno"],
+AC_ARG_ENABLE([json],
+              [AS_HELP_STRING([--enable-json], [Enable JSON output plugin [default=test]])])
+AS_IF([test "x$enable_json" != "xno"],
       [PKG_CHECK_MODULES([libjansson], [jansson], [], [:])])
-AS_IF([test "x$libjansson_LIBS" != "x"], [enable_jansson=yes], [enable_jansson=no])
+AS_IF([test "x$libjansson_LIBS" != "x"], [enable_json=yes], [enable_json=no])
 AM_CONDITIONAL([HAVE_JANSSON], [test "x$libjansson_LIBS" != "x"])
 
 AC_ARG_WITH([ulogd2libdir],
@@ -182,6 +182,6 @@ Ulogd configuration:
     MySQL plugin:			${enable_mysql}
     SQLITE3 plugin:			${enable_sqlite3}
     DBI plugin:				${enable_dbi}
-    JSON plugin:			${enable_jansson}
+    JSON plugin:			${enable_json}
 "
 echo "You can now run 'make' and 'make install'"
