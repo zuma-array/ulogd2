@@ -1,5 +1,7 @@
 include $(top_srcdir)/Make_global.am
 
+AM_CPPFLAGS += $(libpcap_CFLAGS)
+
 pkglib_LTLIBRARIES = ulogd_output_PCAP.la
 
 ulogd_output_PCAP_la_SOURCES = ulogd_output_PCAP.c

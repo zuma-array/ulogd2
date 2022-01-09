@@ -153,9 +153,33 @@ AM_CONDITIONAL([HAVE_DBI], [test "x$libdbi_LIBS" != "x"])
 
 AC_ARG_ENABLE([pcap],
               [AS_HELP_STRING([--enable-pcap], [Enable PCAP output plugin [default=test]])])
-AS_IF([test "x$enable_pcap" != "xno"],
-      [AC_SEARCH_LIBS([pcap_close], [pcap], [libpcap_LIBS="-lpcap"; LIBS=""])
-       AC_SUBST([libpcap_LIBS])])
+AS_IF([test "x$enable_pcap" != "xno"], [
+
+  PKG_CHECK_EXISTS([libpcap], [PKG_CHECK_MODULES([libpcap], [libpcap])], [
+
+    AC_ARG_WITH([pcap-config],
+                [AS_HELP_STRING([--with-pcap-config=PATH], [Path to the pcap-config script])],
+                [pcap_config="$withval"], [pcap_config=pcap-config])
+
+    AC_MSG_CHECKING([for pcap-config])
+
+    AS_IF([command -v "$pcap_config" >/dev/null], [
+
+      libpcap_CFLAGS="`$pcap_config --cflags`"
+      libpcap_LIBS="`$pcap_config --libs`"
+
+      AC_SUBST([libpcap_CFLAGS])
+      AC_SUBST([libpcap_LIBS])
+
+      AC_MSG_RESULT([$pcap_config])
+
+    ], [
+      AC_MSG_RESULT([no])
+    ])
+
+  ])
+
+])
 AS_IF([test "x$libpcap_LIBS" != "x"], [enable_pcap=yes], [enable_pcap=no])
 AM_CONDITIONAL([HAVE_PCAP], [test "x$libpcap_LIBS" != "x"])
 
