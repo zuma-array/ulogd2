@@ -213,6 +213,12 @@ AS_IF([test "x$enable_pcap" != "xno"], [
       AC_MSG_RESULT([no])
     ])
 
+    AS_IF([test "x$libpcap_LIBS" = "x"], [
+      AS_IF([test "x$enable_pcap" = "xyes"], [
+        AC_MSG_ERROR([libpcap not found])
+      ])
+    ])
+
   ])
 
 ])
