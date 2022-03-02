@@ -108,6 +108,7 @@ static struct config_keyset pcap_kset = {
 
 struct pcap_instance {
 	FILE *of;
+	size_t len;
 };
 
 struct intr_id {
@@ -141,6 +142,8 @@ static struct ulogd_key pcap_keys[INTR_IDS] = {
 };
 
 #define GET_FLAGS(res, x)	(res[x].u.source->flags)
+
+static int append_create_outfile(struct ulogd_pluginstance *);
 
 static int interp_pcap(struct ulogd_pluginstance *upi)
 {
@@ -186,9 +189,20 @@ static int interp_pcap(struct ulogd_pluginstance *upi)
 			  strerror(errno));
 		return ULOGD_IRET_ERR;
 	}
+	pi->len += sizeof(pchdr) + pchdr.caplen;
 
 	if (upi->config_kset->ces[1].u.value)
 		fflush(pi->of);
+
+	if (pi->len > 128 * 1024) {
+		char backup[strlen(upi->config_kset->ces[0].u.string) + 3];
+
+		ulogd_log(ULOGD_NOTICE, "rotating capture file\n");
+		fclose(pi->of);
+		sprintf(backup, "%s.0", upi->config_kset->ces[0].u.string);
+		rename(upi->config_kset->ces[0].u.string, backup);
+		append_create_outfile(upi);
+	}
 
 	return ULOGD_IRET_OK;
 }
@@ -213,6 +227,8 @@ static int write_pcap_header(struct pcap_instance *pi)
 	ret =  fwrite(&pcfh, sizeof(pcfh), 1, pi->of);
 	fflush(pi->of);
 
+	pi->len = sizeof(pcfh);
+
 	return ret;
 }
 
@@ -223,8 +239,10 @@ static int append_create_outfile(struct ulogd_pluginstance *upi)
 	struct stat st_dummy;
 	int exist = 0;
 
-	if (stat(filename, &st_dummy) == 0 && st_dummy.st_size > 0)
+	if (stat(filename, &st_dummy) == 0 && st_dummy.st_size > 0) {
 		exist = 1;
+		pi->len = st_dummy.st_size;
+	}
 
 	if (!exist) {
 		pi->of = fopen(filename, "w");
@@ -234,6 +252,7 @@ static int append_create_outfile(struct ulogd_pluginstance *upi)
 				  strerror(errno));
 			return -EPERM;
 		}
+		pi->len = 0;
 		if (!write_pcap_header(pi)) {
 			ulogd_log(ULOGD_ERROR, "can't write pcap header: %s\n",
 				  strerror(errno));
